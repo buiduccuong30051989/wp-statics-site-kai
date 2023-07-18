@@ -5,9 +5,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/gif", "image/png"];
-const FILE_SIZE = 5242880; // 5mb
-
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
   email: yup
@@ -15,32 +12,22 @@ const schema = yup.object().shape({
     .email("Invalid email format")
     .required("Email is required"),
   phone: yup.string().required("Phone is required"),
-  count: yup
+  facebookLink: yup
     .string()
-    .min(1, "Count must be at least 1 item")
-    .required("Count is required"),
-  file: yup
-    .mixed()
-    .test("file", "You need to provide a file", (value) => {
-      if (value.length > 0) {
-        return true;
-      }
-      return false;
-    })
-    .test("fileSize", "File too large", (value) => {
-      return value[0] && value[0].size <= FILE_SIZE;
-    })
-    .test(
-      "fileFormat",
-      "Unsupported Format",
-      (value) => value[0] && SUPPORTED_FORMATS.includes(value[0].type)
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      "Invalid format url"
+    )
+    .required("Please enter facebook link"),
+  instagramLink: yup
+    .string()
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      "Invalid format url"
     ),
 });
 
-export const PageProductDetail = () => {
-  const [data, setData] = useState({});
-  const [isOpen, setIsOpen] = useState(false);
-
+export const PageRegister = () => {
   const {
     register,
     handleSubmit,
@@ -49,50 +36,23 @@ export const PageProductDetail = () => {
     resolver: yupResolver(schema),
   });
 
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  function openModal() {
-    setIsOpen(true);
-  }
-
   const onSubmit = (data) => {
-    const formData = new FormData();
-    Object.keys(data).map((k) => {
-      if (typeof data[k] === "object") {
-        formData.append(k, data[k][0]);
-      } else {
-        formData.append(k, data[k]);
-      }
-    });
-
-    // DEBUG ONLY
-    // for (var pair of formData.entries()) {
-    //   console.log(pair[0] + ", " + pair[1]);
-    // }
-
-    // @TODO: call api => success => open modal payment
-
-    openModal();
+    console.log(data)
+    // @TODO: call api => success => next step
   };
 
   return (
-    <div className="p-product-detail py-8">
-      <div className="container sm">
-        <div className="order-confirm flex gap-x-24 justify-between items-center">
-          <div className="confirm-p p-6 w-full">
-            <div className="confirm-p-cover">
-              <img src="/img/p-cover.png" />
-            </div>
-          </div>
-
+    <div className="p-register py-8">
+      <div className="container xxs">
+        <div className="register-inner">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="order-confirm-form space-y-6 w-full"
           >
             <div className="field">
-              <label className="label">Name</label>
+              <label className="label">
+                Name <abbr title="required">*</abbr>
+              </label>
               <input
                 {...register("name")}
                 name="name"
@@ -105,7 +65,9 @@ export const PageProductDetail = () => {
             </div>
             <div className="grid grid-cols-2 gap-x-4">
               <div className="field">
-                <label className="label">Email</label>
+                <label className="label">
+                  Email <abbr title="required">*</abbr>
+                </label>
                 <input
                   {...register("email")}
                   name="email"
@@ -117,7 +79,9 @@ export const PageProductDetail = () => {
                 )}
               </div>
               <div className="field">
-                <label className="label">Phone Number</label>
+                <label className="label">
+                  Phone Number <abbr title="required">*</abbr>
+                </label>
                 <input
                   {...register("phone")}
                   name="phone"
@@ -130,139 +94,154 @@ export const PageProductDetail = () => {
               </div>
             </div>
             <div className="field">
-              <label className="label">Number of items</label>
+              <label className="label">
+                Facebook Link <abbr title="required">*</abbr>
+              </label>
               <input
-                {...register("count")}
-                name="count"
-                type="number"
+                {...register("facebookLink")}
+                name="facebookLink"
+                type="text"
                 className="input"
               />
-              {errors.count && (
-                <p className="help is-danger">{errors.count.message}</p>
+              {errors.facebookLink && (
+                <p className="help is-danger">{errors.facebookLink.message}</p>
               )}
             </div>
             <div className="field">
-              <label className="label">Facebook Link</label>
-              <input type="text" className="input" />
-            </div>
-            <div className="field">
+              <label className="label">Instagram Link</label>
               <input
-                className="input pt-[3px]"
-                accept={SUPPORTED_FORMATS}
-                type="file"
-                name="file"
-                {...register("file")}
+                {...register("instagramLink")}
+                name="instagramLink"
+                type="text"
+                className="input"
               />
-              {errors.file && (
-                <p className="help is-danger">{errors.file.message}</p>
-              )}
             </div>
             <div className="field flex justify-center">
               <button type="submit" className="btn-main lg min-w-[160px] mt-6">
-                Payment
+                Next
               </button>
             </div>
           </form>
         </div>
       </div>
-
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 text-center"
-                  >
-                    Scan Qr for Payment
-                  </Dialog.Title>
-                  <Dialog.Description className="text-center">
-                    Please choose one of platform below to complete your order!
-                  </Dialog.Description>
-
-                  <div className="grid grid-cols-2 gap-x-8 mt-8">
-                    <div className="box-payment text-center">
-                      <p className="text-xs text-[#82869E]">
-                        Số tiền cần thanh toán
-                      </p>
-                      <h4 className="text-black font-bold text-4xl mt-2 mb-6">
-                        646.345 đ
-                      </h4>
-                      <div className="flex items-center justify-center mb-4">
-                        <img src="/img/vnpay-qr.png" />
-                      </div>
-                      <div className="flex items-center justify-center gap-x-8 text-xs">
-                        <p className="text-[#82869E]">
-                          MID:
-                          <span className="text-black">4226546736742</span>
-                        </p>
-                        <p className="text-[#82869E]">
-                          TID:
-                          <span className="text-black">4226546736742</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="box-payment text-center">
-                      <p className="text-xs text-[#82869E]">
-                        Số tiền cần thanh toán
-                      </p>
-                      <h4 className="text-black font-bold text-4xl mt-2 mb-6">
-                        646.345 đ
-                      </h4>
-                      <div className="flex items-center justify-center mb-4">
-                        <img src="/img/momo-qr.png" />
-                      </div>
-                      <div className="flex items-center justify-center gap-x-8 text-xs">
-                        <p className="text-[#82869E]">
-                          MID:
-                          <span className="text-black">4226546736742</span>
-                        </p>
-                        <p className="text-[#82869E]">
-                          TID:
-                          <span className="text-black">4226546736742</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex justify-center">
-                    <button
-                      type="button"
-                      className="btn-main lg"
-                      onClick={closeModal}
-                    >
-                      Got it, thanks!
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
     </div>
   );
 };
+
+// <div class="container">
+//   <div class="lg:border-b lg:border-t lg:border-gray-200">
+//     <nav class="mx-auto max-w-7xl" aria-label="Progress">
+//       <ol
+//         role="list"
+//         class="overflow-hidden rounded-md lg:flex lg:rounded-none lg:border-gray-200"
+//       >
+//         <li class="relative overflow-hidden lg:flex-1">
+//           <div class="overflow-hidden border border-gray-200 rounded-t-md border-b-0 lg:border-0">
+//             {/* <!-- Completed Step --> */}
+//             <a href="#" aria-current="step">
+//               <span
+//                 class="absolute left-0 top-0 h-full w-1 bg-main-color lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+//                 aria-hidden="true"
+//               ></span>
+//               <span class="flex items-start px-6 py-5 text-sm font-medium">
+//                 <span class="flex-shrink-0">
+//                   <span class="flex h-10 w-10 items-center border-main-color justify-center rounded-full border-2">
+//                     <span class="text-main-color">01</span>
+//                   </span>
+//                 </span>
+//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+//                   <span class="text-sm font-medium text-main-color">
+//                     Step 01
+//                   </span>
+//                   <span class="text-sm font-medium text-gray-500">
+//                     Confirm Information
+//                   </span>
+//                 </span>
+//               </span>
+//             </a>
+//           </div>
+//         </li>
+//         <li class="relative overflow-hidden lg:flex-1">
+//           <div class="overflow-hidden border border-gray-200 lg:border-0">
+//             {/* <!-- Current Step --> */}
+//             <a href="#" class="group">
+//               <span
+//                 class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+//                 aria-hidden="true"
+//               ></span>
+//               <span class="flex items-start px-6 py-5 text-sm font-medium lg:pl-9">
+//                 <span class="flex-shrink-0">
+//                   <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300">
+//                     <span class="text-gray-500">02</span>
+//                   </span>
+//                 </span>
+//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+//                   <span class="text-sm font-medium text-gray-500">Step 02</span>
+//                   <span class="text-sm font-medium text-gray-500">Payment</span>
+//                 </span>
+//               </span>
+//             </a>
+//             {/* <!-- Separator --> */}
+//             <div
+//               class="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
+//               aria-hidden="true"
+//             >
+//               <svg
+//                 class="h-full w-full text-gray-300"
+//                 viewBox="0 0 12 82"
+//                 fill="none"
+//                 preserveAspectRatio="none"
+//               >
+//                 <path
+//                   d="M0.5 0V31L10.5 41L0.5 51V82"
+//                   stroke="currentcolor"
+//                   vector-effect="non-scaling-stroke"
+//                 />
+//               </svg>
+//             </div>
+//           </div>
+//         </li>
+//         <li class="relative overflow-hidden lg:flex-1">
+//           <div class="overflow-hidden border border-gray-200 rounded-b-md border-t-0 lg:border-0">
+//             {/* <!-- Upcoming Step --> */}
+//             <a href="#" class="group">
+//               <span
+//                 class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+//                 aria-hidden="true"
+//               ></span>
+//               <span class="flex items-start px-6 py-5 text-sm font-medium lg:pl-9">
+//                 <span class="flex-shrink-0">
+//                   <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300">
+//                     <span class="text-gray-500">03</span>
+//                   </span>
+//                 </span>
+//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+//                   <span class="text-sm font-medium text-gray-500">Step 03</span>
+//                   <span class="text-sm font-medium text-gray-500">Finish</span>
+//                 </span>
+//               </span>
+//             </a>
+//             {/* <!-- Separator --> */}
+//             <div
+//               class="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
+//               aria-hidden="true"
+//             >
+//               <svg
+//                 class="h-full w-full text-gray-300"
+//                 viewBox="0 0 12 82"
+//                 fill="none"
+//                 preserveAspectRatio="none"
+//               >
+//                 <path
+//                   d="M0.5 0V31L10.5 41L0.5 51V82"
+//                   stroke="currentcolor"
+//                   vector-effect="non-scaling-stroke"
+//                 />
+//               </svg>
+//             </div>
+//           </div>
+//         </li>
+//       </ol>
+//     </nav>
+//   </div>
+// </div>;

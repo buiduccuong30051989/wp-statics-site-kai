@@ -1,5 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { PageHome, PageProductDetail } from "./pages";
+import {
+  PageHome,
+  PageLuckyNumber,
+  PageProductDetail,
+  PageRegister,
+} from "./pages";
 import { PublicLayout } from "./layout";
 
 const router = createBrowserRouter([
@@ -13,6 +18,14 @@ const router = createBrowserRouter([
       {
         path: "product/:productId",
         element: <PageProductDetail />,
+      },
+      {
+        path: "register",
+        element: <PageRegister />,
+      },
+      {
+        path: "lucky-number",
+        element: <PageLuckyNumber />,
       },
     ],
   },
