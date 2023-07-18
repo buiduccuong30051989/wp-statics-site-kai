@@ -4,6 +4,7 @@ import { HttpClient } from "@/core/services/httpClient";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useParams } from "react-router-dom";
 
 const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/gif", "image/png"];
 const FILE_SIZE = 5242880; // 5mb
@@ -15,10 +16,16 @@ const schema = yup.object().shape({
     .email("Invalid email format")
     .required("Email is required"),
   phone: yup.string().required("Phone is required"),
-  count: yup
+  numberOfItems: yup
+    .number()
+    .min(5, "Total must be at least 5 items")
+    .required("This field is required"),
+  link: yup
     .string()
-    .min(1, "Count must be at least 1 item")
-    .required("Count is required"),
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      "Invalid format url"
+    ),
   file: yup
     .mixed()
     .test("file", "You need to provide a file", (value) => {
@@ -38,8 +45,10 @@ const schema = yup.object().shape({
 });
 
 export const PageProductDetail = () => {
-  const [data, setData] = useState({});
   const [isOpen, setIsOpen] = useState(false);
+  const [numberOfItems, setNumberOfItems] = useState(5);
+  const [price, setPrice] = useState(0);
+  const params = useParams();
 
   const {
     register,
@@ -48,6 +57,20 @@ export const PageProductDetail = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  useEffect(() => {
+    console.log(numberOfItems);
+    HttpClient.get(
+      `calculate-price?product=${params?.productId}&numberOfItems=${numberOfItems}`
+    )
+      .then((res) => {
+        setPrice(res?.price);
+        openModal();
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
+  }, [numberOfItems]);
 
   function closeModal() {
     setIsOpen(false);
@@ -66,6 +89,18 @@ export const PageProductDetail = () => {
         formData.append(k, data[k]);
       }
     });
+    formData.append("paymentMethod", "momo-vnpay");
+    formData.append("product", params?.productId);
+
+    HttpClient.post("order", { body: formData })
+      .then((res) => {
+        setNumberOfItems(data.numberOfItems);
+      })
+      .catch((err) => {
+        // setErrorServer(err.message);
+        // setNumberOfItems(data.numberOfItems);
+        // console.log(err);
+      });
 
     // DEBUG ONLY
     // for (var pair of formData.entries()) {
@@ -73,8 +108,6 @@ export const PageProductDetail = () => {
     // }
 
     // @TODO: call api => success => open modal payment
-
-    openModal();
   };
 
   return (
@@ -132,18 +165,26 @@ export const PageProductDetail = () => {
             <div className="field">
               <label className="label">Number of items</label>
               <input
-                {...register("count")}
-                name="count"
+                {...register("numberOfItems")}
+                name="numberOfItems"
                 type="number"
                 className="input"
               />
-              {errors.count && (
-                <p className="help is-danger">{errors.count.message}</p>
+              {errors.numberOfItems && (
+                <p className="help is-danger">{errors.numberOfItems.message}</p>
               )}
             </div>
             <div className="field">
               <label className="label">Facebook Link</label>
-              <input type="text" className="input" />
+              <input
+                {...register("link")}
+                name="link"
+                type="text"
+                className="input"
+              />
+              {errors.link && (
+                <p className="help is-danger">{errors.link.message}</p>
+              )}
             </div>
             <div className="field">
               <input
@@ -208,7 +249,11 @@ export const PageProductDetail = () => {
                         Số tiền cần thanh toán
                       </p>
                       <h4 className="text-black font-bold text-4xl mt-2 mb-6">
-                        646.345 đ
+                        {price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}{" "}
+                        đ
                       </h4>
                       <div className="flex items-center justify-center mb-4">
                         <img src="/img/vnpay-qr.png" />
@@ -230,7 +275,11 @@ export const PageProductDetail = () => {
                         Số tiền cần thanh toán
                       </p>
                       <h4 className="text-black font-bold text-4xl mt-2 mb-6">
-                        646.345 đ
+                        {price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}{" "}
+                        đ
                       </h4>
                       <div className="flex items-center justify-center mb-4">
                         <img src="/img/momo-qr.png" />

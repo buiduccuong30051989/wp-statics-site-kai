@@ -4,6 +4,8 @@ import { HttpClient } from "@/core/services/httpClient";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { TabsRegister } from "@/components";
+import { useNavigate } from "react-router-dom";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -28,6 +30,7 @@ const schema = yup.object().shape({
 });
 
 export const PageRegister = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -37,17 +40,24 @@ export const PageRegister = () => {
   });
 
   const onSubmit = (data) => {
-    console.log(data)
+    console.log(data);
+    navigate("/lucky-number");
     // @TODO: call api => success => next step
   };
 
   return (
     <div className="p-register py-8">
+      <div className="container sm">
+        <div className="lg:border-b lg:border-t lg:border-gray-200">
+          <TabsRegister step={1} />
+        </div>
+      </div>
+
       <div className="container xxs">
         <div className="register-inner">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="order-confirm-form space-y-6 w-full"
+            className="order-confirm-form space-y-6 card-shadow mt-16"
           >
             <div className="field">
               <label className="label">
@@ -127,121 +137,3 @@ export const PageRegister = () => {
     </div>
   );
 };
-
-// <div class="container">
-//   <div class="lg:border-b lg:border-t lg:border-gray-200">
-//     <nav class="mx-auto max-w-7xl" aria-label="Progress">
-//       <ol
-//         role="list"
-//         class="overflow-hidden rounded-md lg:flex lg:rounded-none lg:border-gray-200"
-//       >
-//         <li class="relative overflow-hidden lg:flex-1">
-//           <div class="overflow-hidden border border-gray-200 rounded-t-md border-b-0 lg:border-0">
-//             {/* <!-- Completed Step --> */}
-//             <a href="#" aria-current="step">
-//               <span
-//                 class="absolute left-0 top-0 h-full w-1 bg-main-color lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-//                 aria-hidden="true"
-//               ></span>
-//               <span class="flex items-start px-6 py-5 text-sm font-medium">
-//                 <span class="flex-shrink-0">
-//                   <span class="flex h-10 w-10 items-center border-main-color justify-center rounded-full border-2">
-//                     <span class="text-main-color">01</span>
-//                   </span>
-//                 </span>
-//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
-//                   <span class="text-sm font-medium text-main-color">
-//                     Step 01
-//                   </span>
-//                   <span class="text-sm font-medium text-gray-500">
-//                     Confirm Information
-//                   </span>
-//                 </span>
-//               </span>
-//             </a>
-//           </div>
-//         </li>
-//         <li class="relative overflow-hidden lg:flex-1">
-//           <div class="overflow-hidden border border-gray-200 lg:border-0">
-//             {/* <!-- Current Step --> */}
-//             <a href="#" class="group">
-//               <span
-//                 class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-//                 aria-hidden="true"
-//               ></span>
-//               <span class="flex items-start px-6 py-5 text-sm font-medium lg:pl-9">
-//                 <span class="flex-shrink-0">
-//                   <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300">
-//                     <span class="text-gray-500">02</span>
-//                   </span>
-//                 </span>
-//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
-//                   <span class="text-sm font-medium text-gray-500">Step 02</span>
-//                   <span class="text-sm font-medium text-gray-500">Payment</span>
-//                 </span>
-//               </span>
-//             </a>
-//             {/* <!-- Separator --> */}
-//             <div
-//               class="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
-//               aria-hidden="true"
-//             >
-//               <svg
-//                 class="h-full w-full text-gray-300"
-//                 viewBox="0 0 12 82"
-//                 fill="none"
-//                 preserveAspectRatio="none"
-//               >
-//                 <path
-//                   d="M0.5 0V31L10.5 41L0.5 51V82"
-//                   stroke="currentcolor"
-//                   vector-effect="non-scaling-stroke"
-//                 />
-//               </svg>
-//             </div>
-//           </div>
-//         </li>
-//         <li class="relative overflow-hidden lg:flex-1">
-//           <div class="overflow-hidden border border-gray-200 rounded-b-md border-t-0 lg:border-0">
-//             {/* <!-- Upcoming Step --> */}
-//             <a href="#" class="group">
-//               <span
-//                 class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-//                 aria-hidden="true"
-//               ></span>
-//               <span class="flex items-start px-6 py-5 text-sm font-medium lg:pl-9">
-//                 <span class="flex-shrink-0">
-//                   <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300">
-//                     <span class="text-gray-500">03</span>
-//                   </span>
-//                 </span>
-//                 <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
-//                   <span class="text-sm font-medium text-gray-500">Step 03</span>
-//                   <span class="text-sm font-medium text-gray-500">Finish</span>
-//                 </span>
-//               </span>
-//             </a>
-//             {/* <!-- Separator --> */}
-//             <div
-//               class="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
-//               aria-hidden="true"
-//             >
-//               <svg
-//                 class="h-full w-full text-gray-300"
-//                 viewBox="0 0 12 82"
-//                 fill="none"
-//                 preserveAspectRatio="none"
-//               >
-//                 <path
-//                   d="M0.5 0V31L10.5 41L0.5 51V82"
-//                   stroke="currentcolor"
-//                   vector-effect="non-scaling-stroke"
-//                 />
-//               </svg>
-//             </div>
-//           </div>
-//         </li>
-//       </ol>
-//     </nav>
-//   </div>
-// </div>;

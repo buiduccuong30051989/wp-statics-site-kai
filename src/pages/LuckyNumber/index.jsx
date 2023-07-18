@@ -1,9 +1,9 @@
 import { useState, Fragment, useEffect } from "react";
 import OtpInput from "react-otp-input";
+import { TabsRegister } from "@/components/tabsRegister";
 
 export const PageLuckyNumber = () => {
   const [otps, setOtps] = useState([]);
-  const [otp, setOtp] = useState("");
 
   // @TODO: get user info to show otp more or less
   useEffect(() => {
@@ -23,9 +23,15 @@ export const PageLuckyNumber = () => {
 
   return (
     <div className="p-register py-8">
-      <div className="container">
+      <div className="container sm">
+        <div className="lg:border-b lg:border-t lg:border-gray-200">
+          <TabsRegister step={2} />
+        </div>
+      </div>
+
+      <div className="container sm mt-10">
         <div className="register-inner flex justify-center">
-          <div className="order-confirm-form space-y-6">
+          <div className="order-confirm-form space-y-6 card-shadow">
             {otps.map((i, index) => (
               <OtpInput
                 key={index}

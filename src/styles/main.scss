@@ -248,3 +248,8 @@ $mainColor: #bb0000;
     @apply text-red-500;
   }
 }
+
+.card-shadow {
+  box-shadow: 2px 4px 10px 0px rgba(0, 0, 0, 0.15);
+  @apply p-8;
+}
